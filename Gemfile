@@ -7,6 +7,6 @@ gemspec
 group :test do
   gem "fasterer"
   gem "reek"
-  gem "rspec-core"
+  gem "rspec"
   gem "rubocop"
 end

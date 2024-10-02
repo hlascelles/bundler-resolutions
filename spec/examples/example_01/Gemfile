@@ -1,6 +1,9 @@
 # frozen_string_literal: true
+
 # This example will produce lock file with a thor version of 1.3.1, as it is brought in by figjam.
-# thor however will not appear in the `DEPENDENCIES` section, as we are not saying it is a dependency of our project.
+# thor however will not appear in the `DEPENDENCIES` section, as we are not saying it is a
+# dependency of our project.
+
 source "https://rubygems.org"
 
 plugin "bundler-resolutions", path: "../../../"
