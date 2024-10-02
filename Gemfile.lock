@@ -47,6 +47,7 @@ GEM
       racc
     racc (1.8.1)
     rainbow (3.1.1)
+    rake (13.2.1)
     reek (6.3.0)
       dry-schema (~> 1.13.0)
       parser (~> 3.3.0)
@@ -94,6 +95,7 @@ PLATFORMS
 DEPENDENCIES
   bundler-resolutions!
   fasterer
+  rake
   reek
   rspec
   rubocop
