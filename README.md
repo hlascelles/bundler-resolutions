@@ -80,6 +80,8 @@ direct use, such as:
 2. You have internal processes that mandate the usage of certain gem versions for legal or sign off reasons.
 3. You know of gem incompatibilities in later versions.
 4. You know that different OS architectures do not work with some versions.
+5. You use the same list of blessed version gems across multiple projects, but where not all the projects use all those gems.
+6. You wish to prevent unintentional downgrades of dependencies when using `bundle` commands.
 
 ## How it works
 
