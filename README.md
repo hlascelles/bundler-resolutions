@@ -73,15 +73,19 @@ present in the `DEPENDENCIES` section of the lock file, as it is not a direct de
 
 ## Use cases
 
-There are a number of reasons you may want to prevent the usage of some gem versions, without
-direct use, such as:
+There are a number of reasons you may want to prevent the usage of some gem versions, but without
+declaring their direct use in Gemfiles. Also there are reasons to set versions across a monorepo
+of many Gemfiles, but where not all apps use all blessed versions, such as:
 
 1. You have learnt of a CVE of a gem.
-2. You have internal processes that mandate the usage of certain gem versions for legal or sign off reasons.
-3. You know of gem incompatibilities in later versions.
-4. You know that different OS architectures do not work with some versions.
-5. You use the same list of blessed version gems across multiple projects, but where not all the projects use all those gems.
-6. You wish to prevent unintentional downgrades of dependencies when using `bundle` commands.
+1. You have internal processes that mandate the usage of certain gem versions for legal or sign off reasons.
+1. You wish to take a paranoid approach to updating certain high value target gems. eg `devise`.
+1. You want certain gem collections to move in lockstep. eg `sinatra`, `rack` and `rack-protection`, which are relatively tightly coupled.
+1. You know of gems that are very slow to install and you have preinstalled them in internal base images. eg `rugged` or `sorbet`.
+1. You know of gems that are tightly coupled to ruby itself that shouldn't be upgraded. eg `stringio` and `psych`.
+1. You know of gem incompatibilities with your codebase in their later versions.
+1. You know that different OS architectures do not work with some versions.
+1. You wish to prevent unintentional downgrades of dependencies when using `bundle` commands.
 
 ## How it works
 
