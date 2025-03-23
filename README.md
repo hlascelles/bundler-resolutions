@@ -5,7 +5,7 @@ bundler-resolutions
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 [bundler-resolutions](https://github.com/hlascelles/bundler-resolutions) is a [bundler](https://bundler.io/)
-plugin that allows you to specify gem version requirements in your `Gemfile` without explicitly declaring
+plugin that allows you to specify gem version requirements for your `Gemfile` without explicitly declaring
 a concrete dependency on those gems. It acts much like the
 [resolutions](https://classic.yarnpkg.com/lang/en/docs/selective-version-resolutions/) feature in
 [Yarn](https://yarnpkg.com/).
