@@ -38,6 +38,8 @@ Lint/StructNewOverride:
   Enabled: true
 Metrics/MethodLength:
   Max: 30
+Naming/VariableNumber:
+  Enabled: false
 Style/AccessModifierDeclarations:
   Enabled: true
   EnforcedStyle: inline
@@ -45,6 +47,8 @@ Style/BlockDelimiters:
   Enabled: false
 Style/ExponentialNotation:
   Enabled: true
+Style/FetchEnvVar:
+  Enabled: false
 Style/HashEachMethods:
   Enabled: true
 Style/HashTransformKeys:

@@ -1,3 +1,9 @@
+## 0.2.0  (2025-03-23)
+
+- BREAKING CHANGE: Refactor to use config file [#18](https://github.com/hlascelles/bundler-resolutions/pull/18)
+  To upgrade to this version you must now supply a `.bundler-resolutions.yml` file. This can be
+  in the root of your project, or the location to it can be specified using the `BUNDLER_RESOLUTIONS_CONFIG` ENV.
+
 ## 0.1.0 (2024-10-02)
 
 - First version

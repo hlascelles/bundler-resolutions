@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+require "spec_helper"
+
+describe "prevents DEPENDENCY presence" do
+  # Expect the right thor version, even though a higher one is available and otherwise valid
+  let(:expected_gem_specs_versions) {
+    {
+      "bundler-resolutions" => Bundler::Resolutions::VERSION,
+      "dememoize" => "0.1.0",
+      "figjam" => "1.6.2",
+      "thor" => "1.3.1", # Brought in by figjam, but pinned by bundler-resolutions
+    }
+  }
+  # No thor, as it is only mentioned in resolutions
+  let(:expected_dependencies) { %w[bundler-resolutions dememoize figjam] }
+
+  it_behaves_like "a lockfile test", __dir__
+end
