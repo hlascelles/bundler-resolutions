@@ -53,6 +53,24 @@ gem 'bundler-resolutions'
 gem "thor"
 ```
 
+## Config file
+
+The config file is a YAML file with a `gems` key that contains a mapping of gem names to version
+requirements. The version requirements are the same as those used in the `Gemfile`.
+
+Example:
+
+```yaml
+gems:
+  nokogiri: ">= 1.16.5" # CVE-2024-34459
+  thor: ">= 1.0.1, < 2.0"
+```
+
+By default, `bundler-resolutions` will look for a file named `.bundler-resolutions.yml` in the
+current directory, or the parent, and continue looking up to the root dir.
+
+You can also specify a file location by setting the `BUNDLER_RESOLUTIONS_CONFIG` ENV var.
+
 ## Detail
 
 `bundler-resolutions` allows you to specify version requirements in a config file 
