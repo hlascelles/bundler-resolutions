@@ -1,0 +1,5 @@
+gems:
+  # See if we can pin it down less than 1.18
+  # and push it up for CVE-2024-34459
+  nokogiri: "< 1.18, > 1.16.5"
+  psych: "5.2.2"

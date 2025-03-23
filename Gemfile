@@ -9,7 +9,9 @@ group :development do
 end
 
 group :test do
+  gem "climate_control"
   gem "fasterer"
+  gem "pry-byebug"
   gem "reek"
   gem "rspec"
   gem "rubocop"

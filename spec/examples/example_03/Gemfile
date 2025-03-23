@@ -2,10 +2,5 @@
 
 source "https://rubygems.org"
 
-plugin "bundler-resolutions", path: "../../../"
-
-gem "rails"
-
-group :resolutions do
-  gem "nokogiri", ">= 1.16.5" # CVE-2024-34459
-end
+gem "bundler-resolutions", path: "../../../"
+gem "rails", "8.0.2"

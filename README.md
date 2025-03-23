@@ -15,53 +15,49 @@ a concrete dependency on those gems. It acts much like the
 
 ## Usage
 
-Add `bundler-resolutions` to your Gemfile, and add a `resolutions` group to specify the gems you
-want to specify versions requirements for.
+Add `bundler-resolutions` to your Gemfile, and add a `.bundler-resolutions.yml` file to
+specify the gems you want to specify versions requirements for.
 
-The resulting `Gemfile.lock` in this example will have nokogiri locked to `1.16.5` or above.
+### Example 1
 
-```ruby
-plugin 'bundler-resolutions'
+In this example the resulting `Gemfile.lock` will have nokogiri locked to `1.16.5` or above, but
+nokogiri will not be present in the `DEPENDENCIES` section of the lock file. Also, if `rails` were
+to change to a version that did not depend on nokogiri, then the resolution would not be used or
+appear in the lock file at all.
 
-gem "rails"
-
-group :resolutions do
-  gem "nokogiri", ">= 1.16.5" # CVE-2024-34459
-end
+`.bundler-resolutions.yml`:
+```yaml
+gems:
+  nokogiri: ">= 1.16.5" # CVE-2024-34459
 ```
 
-However the `Gemfile.lock` from this example will not have nokogiri at all, as it is neither
-explicitly declared, nor brought in as a transitive dependency.
+`Gemfile`:
+```ruby
+gem 'bundler-resolutions'
+gem "rails"
+```
+
+### Example 2
+
+Here, the `Gemfile.lock` from this example will not have nokogiri at all, as it is neither
+explicitly declared in the Gemfile, nor brought in as a transitive dependency.
+
+`.bundler-resolutions.yml`:
+```yaml
+gems:
+  nokogiri: ">= 1.16.5" # CVE-2024-34459
+```
 
 ```ruby
-plugin 'bundler-resolutions'
-
-group :resolutions do
-  gem "nokogiri", ">= 1.16.5" # CVE-2024-34459
-end
+gem 'bundler-resolutions'
+gem "thor"
 ```
 
 ## Detail
 
-`bundler-resolutions` allows you to specify version requirements using standard gem syntax in your
-Gemfile to indicate that you have version requirements for those gems *if* they were to be brought
+`bundler-resolutions` allows you to specify version requirements in a config file 
+to indicate that you have version requirements for those gems *if* they were to be brought
 in as transitive dependencies, but that you don't depend on them yourself directly.
-
-An example use case is in the Gemfile given below. Here we are saying that although we do not use nokogiri
-specifically ourselves, we want to ensure that if it is pulled in by other gems then it will
-always be above the know version with a CVE.
-
-```ruby
-source "https://rubygems.org"
-
-plugin 'bundler-resolutions'
-
-gem "rails"
-
-group :resolutions do
-  gem "nokogiri", ">= 1.16.5" # CVE-2024-34459
-end
-```
 
 The big difference between doing this and just declaring it in your Gemfile is that it will only 
 be used in resolutions (and be written to your lock file) if the gems you do directly depend on
@@ -89,9 +85,8 @@ of many Gemfiles, but where not all apps use all blessed versions, such as:
 
 ## How it works
 
-`bundler-resolutions` works by patching the Gemfile DSL to allow for special processing
-of the `resolutions` group. It also patches the bundler `filtered_versions_for` method to
-allow for the resolution restrictions from the versions specified in the `resolutions` group.
+`bundler-resolutions` works by patching the `bundler` `Resolver` `filtered_versions_for` method to
+allow for the resolution restrictions from the versions specified in the config file.
 
 This is a very early version, and it should be considered experimental.
 
