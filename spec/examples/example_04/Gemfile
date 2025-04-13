@@ -1,8 +1,0 @@
-# frozen_string_literal: true
-
-# This example will produce lock file without thor at all, as no other gem depends on it.
-
-source "https://rubygems.org"
-
-gem "bundler-resolutions", path: "../../../"
-gem "dememoize", "0.1.0"

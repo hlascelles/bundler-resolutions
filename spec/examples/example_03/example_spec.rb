@@ -2,17 +2,16 @@
 
 require "spec_helper"
 
-describe "Rails example" do
-  it "should make sure resolutions work for a large lockfile which includes Rails" do
-    Dir.chdir(__dir__) do
-      FileUtils.rm_f("Gemfile.lock")
-      `BUNDLE_GEMFILE=#{__dir__}/Gemfile bundle install`
-      lockfile = Bundler::LockfileParser.new(File.read("Gemfile.lock"))
-      # See that psych is locked
-      expect(lockfile.specs.find { _1.name == "psych" }.version.to_s).to eq("5.2.2")
-      nokogiri_version = lockfile.specs.find { _1.name == "nokogiri" }.version
-      expect(nokogiri_version).to be > Gem::Version.new("1.16.5")
-      expect(nokogiri_version).to be < Gem::Version.new("1.18")
-    end
-  end
+describe "bundle install on an otherwise valid lockfile" do
+  # This tackles the scenario when the lockfile is self-consistent, but a gem has been removed.
+  let(:expected_gem_specs_versions) {
+    {
+      "bundler-resolutions" => Bundler::Resolutions::VERSION,
+      "dememoize" => "0.1.0",
+    }
+  }
+  # No thor, as it is only mentioned in resolutions
+  let(:expected_dependencies) { %w[bundler-resolutions dememoize] }
+
+  it_behaves_like "a lockfile test", __dir__
 end

@@ -24,4 +24,6 @@ Gem::Specification.new do |spec|
   }
   spec.files = Dir["{lib}/**/*"] + %w[README.md plugins.rb]
   spec.require_paths = ["lib"]
+
+  spec.required_ruby_version = ">= 3.2"
 end
