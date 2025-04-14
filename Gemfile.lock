@@ -106,7 +106,7 @@ GEM
       racc (~> 1.5)
       sexp_processor (~> 4.16)
     sexp_processor (4.17.3)
-    thor (1.3.1)
+    thor (1.3.2)
     unicode-display_width (3.1.4)
       unicode-emoji (~> 4.0, >= 4.0.4)
     unicode-emoji (4.0.4)
@@ -127,7 +127,7 @@ DEPENDENCIES
   reek
   rspec
   rubocop
-  thor (= 1.3.1)
+  thor (= 1.3.2)
 
 BUNDLED WITH
    2.5.14

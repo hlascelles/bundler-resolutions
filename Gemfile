@@ -12,7 +12,7 @@ group :test do
   # Need to specify these as they will be needed in specs, and GitHub prefers one install
   gem "dememoize", "0.1.0"
   gem "figjam", "1.6.2"
-  gem "thor", "1.3.1"
+  gem "thor", "1.3.2"
 
   gem "climate_control"
   gem "fasterer"
