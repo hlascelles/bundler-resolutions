@@ -45,7 +45,7 @@ GEM
       zeitwerk (~> 2.6)
     fasterer (0.11.0)
       ruby_parser (>= 3.19.1)
-    figjam (1.6.2)
+    figjam (2.0.0)
       thor (>= 0.14.0, < 2)
     json (2.10.2)
     language_server-protocol (3.17.0.4)
@@ -121,7 +121,7 @@ DEPENDENCIES
   climate_control
   dememoize (= 0.1.0)
   fasterer
-  figjam (= 1.6.2)
+  figjam (= 2.0.0)
   pry-byebug
   rake
   reek
