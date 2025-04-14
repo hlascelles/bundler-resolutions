@@ -12,7 +12,7 @@ GEM
     climate_control (1.2.0)
     coderay (1.1.3)
     concurrent-ruby (1.3.5)
-    dememoize (0.1.0)
+    dememoize (0.1.1)
     diff-lcs (1.6.0)
     dry-configurable (1.3.0)
       dry-core (~> 1.1)
@@ -119,7 +119,7 @@ PLATFORMS
 DEPENDENCIES
   bundler-resolutions!
   climate_control
-  dememoize (= 0.1.0)
+  dememoize (= 0.1.1)
   fasterer
   figjam (= 1.6.2)
   pry-byebug
