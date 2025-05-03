@@ -1,4 +1,4 @@
-## UNRELEASED
+## 0.3.0 (2025-05-03)
 
 - BREAKING CHANGE: Add resolution versions to concrete dependencies [#27](https://github.com/hlascelles/bundler-resolutions/pull/27)
 
