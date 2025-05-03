@@ -1,4 +1,8 @@
-## 0.2.0  (2025-03-23)
+## UNRELEASED
+
+- BREAKING CHANGE: Add resolution versions to concrete dependencies [#27](https://github.com/hlascelles/bundler-resolutions/pull/27)
+
+## 0.2.0 (2025-03-23)
 
 - BREAKING CHANGE: Refactor to use config file [#18](https://github.com/hlascelles/bundler-resolutions/pull/18)
   To upgrade to this version you must now supply a `.bundler-resolutions.yml` file. This can be

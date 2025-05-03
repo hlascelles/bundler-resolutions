@@ -11,6 +11,7 @@ GEM
     byebug (12.0.0)
     climate_control (1.2.0)
     coderay (1.1.3)
+    colorize (1.1.0)
     concurrent-ruby (1.3.5)
     dememoize (0.1.0)
     diff-lcs (1.6.0)
@@ -119,6 +120,7 @@ PLATFORMS
 DEPENDENCIES
   bundler-resolutions!
   climate_control
+  colorize (= 1.1.0)
   dememoize (= 0.1.0)
   fasterer
   figjam (= 1.6.2)

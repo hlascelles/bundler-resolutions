@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-describe "prevents DEPENDENCY presence" do
+context "when preventing DEPENDENCY presence" do
   # Expect the right thor version, even though a higher one is available and otherwise valid
   let(:expected_gem_specs_versions) {
     {
@@ -15,5 +15,7 @@ describe "prevents DEPENDENCY presence" do
   # No thor, as it is only mentioned in resolutions
   let(:expected_dependencies) { %w[bundler-resolutions dememoize figjam] }
 
-  it_behaves_like "a lockfile test", __dir__
+  it "runs the lockfile test" do
+    expect(run_lockfile_test(__dir__)).to be true
+  end
 end

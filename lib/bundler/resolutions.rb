@@ -1,15 +1,16 @@
 # frozen_string_literal: true
 
 require "yaml"
+require_relative "resolutions/config"
 
 module Bundler
   class Resolutions
-    CONFIG_FILE_NAME = ".bundler-resolutions.yml"
+    DEFAULT_GEM_REQUIREMENT = Gem::Requirement.default
 
-    attr_reader :resolutions
+    attr_reader :config
 
     def initialize(config = nil)
-      load_config(config)
+      @config = Bundler::Resolutions::Config.load_config(config)
     end
 
     class << self
@@ -19,7 +20,14 @@ module Bundler
     end
 
     # A module we prepend to Bundler::Resolutions::Resolver
+    # :reek:ModuleInitialize
     module Resolver
+      # Override the initializer in the resolver
+      def initialize(*args)
+        Bundler::Resolutions.instance.add_concrete_resolutions_for(args.first)
+        super
+      end
+
       # This overrides the default behaviour of the resolver to filter out versions that don't
       # satisfy the requirements specified in .bundler-resolutions.yml.
       def filtered_versions_for(package)
@@ -29,11 +37,9 @@ module Bundler
 
     def constrain_versions_for(results, package)
       results.select do |pkg|
-        req = resolutions[package.name]
+        req = resolutions_for(package.name)
         if req
-          if ENV["BUNDLER_RESOLUTIONS_DEBUG"] == "true"
-            puts "bundler-resolutions making sure #{package} is satisfied by #{req}"
-          end
+          log("making sure #{package} is satisfied by #{req}")
           req.satisfied_by?(pkg.version)
         else
           true
@@ -41,33 +47,66 @@ module Bundler
       end
     end
 
-    private def load_config(config = nil)
-      # Safe load yaml file whose location is given by an argument, an ENV, and if no
-      # env given then work up dir hierarchy until found.
-      # The file should be called .bundler-resolutions.yml
-      raw_hash = if config.is_a?(Hash)
-                   config
-                 else
-                   YAML.safe_load_file(find_config(config))
-                 end
-      gems = raw_hash.fetch("gems")
-      @resolutions = gems.transform_values { |version| Gem::Requirement.new(version.split(",")) }
+    def add_concrete_resolutions_for(base)
+      base.requirements.each do |bundler_dependency|
+        requirement_name = bundler_dependency.name
+        resolutions = resolutions_for(requirement_name)
+
+        if resolutions
+          log(<<~MSG, requirement_name)
+            has resolutions for concrete dependency '#{requirement_name}': #{resolutions}
+          MSG
+        else
+          log("has no resolutions for concrete dependency '#{requirement_name}'", requirement_name)
+          next
+        end
+
+        bundler_resolutions_reqs = resolutions.requirements
+        apply_resolutions_for_concrete_gem(bundler_dependency, bundler_resolutions_reqs)
+      end
     end
 
-    private def find_config(config = nil)
-      return config if config # If present, assume it is a location
+    private def resolutions_for(package_name)
+      config[package_name]
+    end
 
-      # Use the ENV if present
-      env_file = ENV["BUNDLER_RESOLUTIONS_CONFIG"]
-      return env_file if env_file
+    # You can debug with BUNDLER_RESOLUTIONS_DEBUG=gem_name or BUNDLER_RESOLUTIONS_DEBUG=true
+    # to see all messages.
+    private def log(message, gem = nil)
+      return unless ENV["BUNDLER_RESOLUTIONS_DEBUG"]
+      return if gem && !ENV["BUNDLER_RESOLUTIONS_DEBUG"].split(",").include?(gem)
 
-      # Otherwise find it in the file tree
-      dir = Dir.pwd
-      until File.exist?(File.join(dir, CONFIG_FILE_NAME))
-        dir = File.dirname(dir)
-        raise "Could not find #{CONFIG_FILE_NAME}" if dir == "/"
+      puts "bundler-resolutions: #{message}"
+    end
+
+    private def apply_resolutions_for_concrete_gem(bundler_dependency, bundler_resolutions_reqs)
+      requirement_name = bundler_dependency.name
+      bundler_resolutions_reqs.each do |r|
+        # If the concrete requirement is already in the Gemfile, skip it
+        requirements = bundler_dependency.requirement.requirements
+        if requirements.include?(r)
+          # We don't want to double up / dupe the same requirements
+          log(<<~MSG, requirement_name)
+            Skipping adding requirements to gem concretely specified in Gemfile as it
+            was already present: #{requirement_name}: #{bundler_dependency}
+          MSG
+          next
+        end
+
+        # Otherwise add the additional requirement
+        before_req = bundler_dependency.to_s
+        # If there were no requirements before, there is a default one for ">= 0". We need to
+        # remove that so when we add the new one the implicit ">= 0" is not present, as it normally
+        # isn't written out to lockfiles.
+        requirements.clear if bundler_dependency.requirement == DEFAULT_GEM_REQUIREMENT
+        # Add the new requirement
+        requirements << r
+        after_req = bundler_dependency.to_s
+
+        log(<<~MSG, requirement_name)
+          Adding concrete constraints for #{requirement_name}. Before: #{before_req}. After: #{after_req}.
+        MSG
       end
-      File.join(dir, CONFIG_FILE_NAME)
     end
   end
 end

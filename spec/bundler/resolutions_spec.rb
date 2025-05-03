@@ -11,14 +11,6 @@ describe Bundler::Resolutions do
   let(:valid_yaml) { "gems:\n  thor: \"1.3.1\"\n" }
 
   describe "#initialize" do
-    context "with a hash config" do
-      it "loads configuration from a hash" do
-        resolutions = Bundler::Resolutions.new(valid_config_hash)
-        expect(resolutions.resolutions["thor"]).to be_a(Gem::Requirement)
-        expect(resolutions.resolutions["thor"].to_s).to eq("= 1.3.1")
-      end
-    end
-
     context "with a file path" do
       it "loads configuration from a file path" do
         Tempfile.create(["resolutions", ".yml"]) do |file|
@@ -26,8 +18,8 @@ describe Bundler::Resolutions do
           file.flush
 
           resolutions = Bundler::Resolutions.new(file.path)
-          expect(resolutions.resolutions["thor"]).to be_a(Gem::Requirement)
-          expect(resolutions.resolutions["thor"].to_s).to eq("= 1.3.1")
+          expect(resolutions.config["thor"]).to be_a(Gem::Requirement)
+          expect(resolutions.config["thor"].to_s).to eq("= 1.3.1")
         end
       end
     end
@@ -40,8 +32,8 @@ describe Bundler::Resolutions do
 
           ClimateControl.modify BUNDLER_RESOLUTIONS_CONFIG: file.path do
             resolutions = Bundler::Resolutions.new
-            expect(resolutions.resolutions["thor"]).to be_a(Gem::Requirement)
-            expect(resolutions.resolutions["thor"].to_s).to eq("= 1.3.1")
+            expect(resolutions.config["thor"]).to be_a(Gem::Requirement)
+            expect(resolutions.config["thor"].to_s).to eq("= 1.3.1")
           end
         end
       end
@@ -61,8 +53,8 @@ describe Bundler::Resolutions do
           # Change to the nested directory and initialize without config
           Dir.chdir(nested_dir) do
             resolutions = Bundler::Resolutions.new
-            expect(resolutions.resolutions["thor"]).to be_a(Gem::Requirement)
-            expect(resolutions.resolutions["thor"].to_s).to eq("= 1.3.1")
+            expect(resolutions.config["thor"]).to be_a(Gem::Requirement)
+            expect(resolutions.config["thor"].to_s).to eq("= 1.3.1")
           end
         end
       end
