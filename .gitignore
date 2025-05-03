@@ -57,7 +57,5 @@ build-iPhoneSimulator/
 # .rubocop-https?--*
 /spec/internal/log/
 .bundle
-/spec/examples/example_01/Gemfile.lock
-/spec/examples/example_04/Gemfile.lock
-/spec/examples/example_02/Gemfile.lock
-/spec/examples/example_03/Gemfile.lock
+/spec/examples/*/Gemfile.lock
+/.rspec_status

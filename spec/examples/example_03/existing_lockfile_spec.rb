@@ -2,8 +2,8 @@
 
 require "spec_helper"
 
-describe "prevents Gemfile.lock presence" do
-  # No thor, as it is only mentioned in resolutions
+context "when bundle install on an otherwise valid lockfile" do
+  # This tackles the scenario when the lockfile is self-consistent, but a gem has been removed.
   let(:expected_gem_specs_versions) {
     {
       "bundler-resolutions" => Bundler::Resolutions::VERSION,
@@ -13,5 +13,7 @@ describe "prevents Gemfile.lock presence" do
   # No thor, as it is only mentioned in resolutions
   let(:expected_dependencies) { %w[bundler-resolutions dememoize] }
 
-  it_behaves_like "a lockfile test", __dir__
+  it "runs the lockfile test" do
+    expect(run_lockfile_test(__dir__)).to be true
+  end
 end
