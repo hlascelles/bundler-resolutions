@@ -6,7 +6,6 @@ context "when bundle install on an otherwise valid lockfile" do
   # This tackles the scenario when the lockfile is self-consistent, but a gem has been removed.
   let(:expected_gem_specs_versions) {
     {
-      "bundler-resolutions" => Bundler::Resolutions::VERSION,
       "dememoize" => "0.1.0",
     }
   }

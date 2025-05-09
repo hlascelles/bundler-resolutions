@@ -1,5 +1,5 @@
 gems:
   rspec-core:
-  - "> 3.13.0"
+  - "> 3.10.0"
   rspec-expectations:
   - ">= 3.10"

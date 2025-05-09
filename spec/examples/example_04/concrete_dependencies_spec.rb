@@ -6,7 +6,6 @@ context "when handling concrete dependencies" do
   # Expect the right thor version, even though a higher one is available and otherwise valid
   let(:expected_gem_specs_versions) {
     {
-      "bundler-resolutions" => Bundler::Resolutions::VERSION,
       "colorize" => "1.1.0",
       "dememoize" => "0.1.0",
       "figjam" => "1.6.1",

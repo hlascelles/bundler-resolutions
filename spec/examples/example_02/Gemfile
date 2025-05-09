@@ -5,5 +5,5 @@
 
 source "https://rubygems.org"
 
-gem "bundler-resolutions", path: "../../../", install_if: -> { require_relative "../../../lib/bundler/resolutions"; true }
+plugin "bundler-resolutions", path: "../../../"
 gem "dememoize", "0.1.0"
