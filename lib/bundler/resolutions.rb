@@ -24,6 +24,7 @@ module Bundler
     module Resolver
       # Override the initializer in the resolver
       def initialize(*args)
+        debugger
         Bundler::Resolutions.instance.add_concrete_resolutions_for(args.first)
         super
       end
@@ -39,7 +40,7 @@ module Bundler
       results.select do |pkg|
         req = resolutions_for(package.name)
         if req
-          log("making sure #{package} is satisfied by #{req}")
+          log("making sure #{package} / #{pkg} is satisfied by #{req}")
           req.satisfied_by?(pkg.version)
         else
           true
@@ -98,7 +99,10 @@ module Bundler
         # If there were no requirements before, there is a default one for ">= 0". We need to
         # remove that so when we add the new one the implicit ">= 0" is not present, as it normally
         # isn't written out to lockfiles.
-        requirements.clear if bundler_dependency.requirement == DEFAULT_GEM_REQUIREMENT
+        if bundler_dependency.requirement == DEFAULT_GEM_REQUIREMENT
+          log("Removing default requirement for #{requirement_name}", requirement_name)
+          requirements.clear
+        end
         # Add the new requirement
         requirements << r
         after_req = bundler_dependency.to_s
@@ -108,7 +112,20 @@ module Bundler
         MSG
       end
     end
+
+    module GemDeclarationWrapper
+      def gem(name, *args)
+        # If the gem is already in the Gemfile, skip it
+        return if Bundler::Resolutions.instance.resolutions_for(name)
+
+        # Otherwise call the original method
+        super
+      end
+    end
   end
 end
 
+require "pry-byebug" if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
+
 Bundler::Resolver.prepend(Bundler::Resolutions::Resolver)
+Bundler::Dsl.prepend(Bundler::Resolutions::GemDeclarationWrapper)

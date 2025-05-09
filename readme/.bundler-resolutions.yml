@@ -1,0 +1,3 @@
+gems:
+  rspec-core: "< 3.13.2"
+  rspec-expectations: ">= 3.10"
