@@ -15,7 +15,7 @@ module Bundler
                        YAML.safe_load_file(find_config(config))
                      end
           gems = raw_hash.fetch("gems")
-          gems.transform_values { |version| Gem::Requirement.new(version.split(",")) }
+          gems.transform_values { |reqs| Array(reqs).map { |req| Gem::Requirement.new(req) } }
         end
 
         private def find_config(config = nil)

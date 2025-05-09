@@ -6,7 +6,7 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    rspec-core (3.13.3)
+    rspec-core (3.13.1)
       rspec-support (~> 3.13.0)
     rspec-support (3.13.3)
 
@@ -22,7 +22,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler-resolutions!
-  rspec-core
+  rspec-core (> 3.13.0, < 3.13.2)
 
 BUNDLED WITH
    2.6.7

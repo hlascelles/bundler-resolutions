@@ -13,9 +13,9 @@ describe Bundler::Resolutions::Config do
   context "with a hash config" do
     it "loads configuration from a hash" do
       resolutions = described_class.load_config(valid_config_hash)
-      thor_resolutions = resolutions["thor"]
-      expect(thor_resolutions).to be_a(Gem::Requirement)
-      expect(thor_resolutions.to_s).to eq("= 1.3.1")
+      thor_requirement = resolutions["thor"].first
+      expect(thor_requirement).to be_a(Gem::Requirement)
+      expect(thor_requirement.to_s).to eq("= 1.3.1")
     end
   end
 
@@ -26,9 +26,9 @@ describe Bundler::Resolutions::Config do
         file.flush
 
         resolutions = described_class.load_config(file.path)
-        thor_resolutions = resolutions["thor"]
-        expect(thor_resolutions).to be_a(Gem::Requirement)
-        expect(thor_resolutions.to_s).to eq("= 1.3.1")
+        thor_requirement = resolutions["thor"].first
+        expect(thor_requirement).to be_a(Gem::Requirement)
+        expect(thor_requirement.to_s).to eq("= 1.3.1")
       end
     end
   end
@@ -41,9 +41,9 @@ describe Bundler::Resolutions::Config do
 
         ClimateControl.modify BUNDLER_RESOLUTIONS_CONFIG: file.path do
           resolutions = described_class.load_config
-          thor_resolutions = resolutions["thor"]
-          expect(thor_resolutions).to be_a(Gem::Requirement)
-          expect(thor_resolutions.to_s).to eq("= 1.3.1")
+          thor_requirement = resolutions["thor"].first
+          expect(thor_requirement).to be_a(Gem::Requirement)
+          expect(thor_requirement.to_s).to eq("= 1.3.1")
         end
       end
     end
@@ -63,8 +63,9 @@ describe Bundler::Resolutions::Config do
         # Change to the nested directory and initialize without config
         Dir.chdir(nested_dir) do
           resolutions = described_class.load_config
-          expect(resolutions["thor"]).to be_a(Gem::Requirement)
-          expect(resolutions["thor"].to_s).to eq("= 1.3.1")
+          expect(resolutions["thor"]).to be_a(Array)
+          expect(resolutions["thor"].first).to be_a(Gem::Requirement)
+          expect(resolutions["thor"].first.to_s).to eq("= 1.3.1")
         end
       end
     end

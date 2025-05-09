@@ -6,6 +6,6 @@
 
 source "https://rubygems.org"
 
-gem "bundler-resolutions", path: "../../../"
+gem "bundler-resolutions", path: "../../../", install_if: -> { require_relative "../../../lib/bundler/resolutions"; true }
 gem "dememoize", "0.1.0"
 gem "figjam", "1.6.2" # Gem that depends on thor
