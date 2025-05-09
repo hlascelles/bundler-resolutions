@@ -55,7 +55,6 @@ module Bundler
 
     module GemDeclarationWrapper
       def gem(name, *args)
-        require "pry-byebug" if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
         resolutions = Bundler::Resolutions.instance.resolutions_for(name)
         if resolutions
           super(name, args + resolutions.map(&:to_s))
