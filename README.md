@@ -33,7 +33,7 @@ gems:
 
 `Gemfile`:
 ```ruby
-gem 'bundler-resolutions'
+gem "bundler-resolutions", path: "../", install_if: -> { require Gem::Specification.find_by_name('bundler-resolutions').gem_dir + "/lib/bundler/resolutions"; true }
 gem "rails"
 ```
 
