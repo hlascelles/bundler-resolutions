@@ -17,6 +17,15 @@ module Bundler
       def instance
         @instance ||= new
       end
+
+      # You can debug with BUNDLER_RESOLUTIONS_DEBUG=gem_name or BUNDLER_RESOLUTIONS_DEBUG=true
+      # to see all messages.
+      def log(message, gem = nil)
+        return unless ENV["BUNDLER_RESOLUTIONS_DEBUG"]
+        return if gem && ENV["BUNDLER_RESOLUTIONS_DEBUG"] != "true" && !ENV["BUNDLER_RESOLUTIONS_DEBUG"].split(",").include?(gem)
+
+        puts "bundler-resolutions: #{message}"
+      end
     end
 
     # A module we prepend to Bundler::Resolutions::Resolver
@@ -44,14 +53,7 @@ module Bundler
       config[package_name]
     end
 
-    # You can debug with BUNDLER_RESOLUTIONS_DEBUG=gem_name or BUNDLER_RESOLUTIONS_DEBUG=true
-    # to see all messages.
-    private def log(message, gem = nil)
-      return unless ENV["BUNDLER_RESOLUTIONS_DEBUG"]
-      return if gem && !ENV["BUNDLER_RESOLUTIONS_DEBUG"].split(",").include?(gem)
-
-      puts "bundler-resolutions: #{message}"
-    end
+    def log(message, gem = nil) = self.class.log(message, gem)
 
     module GemDeclarationWrapper
       def gem(name, *args)
@@ -63,10 +65,30 @@ module Bundler
         end
       end
     end
+
+    module Definition
+      # This checks if the bundler-resolutions yaml file now no longer is satisfied by the
+      # current Gemfile.lock. This may be because the yaml file was changed.
+      def something_changed?
+        @resolutions_satisfied ||= @locked_specs.to_a.map { |lazy_specification|
+          name = lazy_specification.name
+          lock_version = lazy_specification.version
+          resolutions = Bundler::Resolutions.instance.resolutions_for(name) || []
+          Bundler::Resolutions.log("checking if #{name} is satisfied by the current lockfile version of #{lock_version}", name)
+          resolutions.all? { |req| req.satisfied_by?(lock_version) }
+        }.all?
+
+        super || !@resolutions_satisfied
+      end
+    end
   end
 end
 
 require "pry-byebug" if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
 
+# This is needed so we can trigger a rebuild of the lock file if just the yaml has changed.
+Bundler::Definition.prepend(Bundler::Resolutions::Definition)
+# This removes the transitive dependency versions that do not satisfy the yaml config.
 Bundler::Resolver.prepend(Bundler::Resolutions::Resolver)
+# This wraps the main Gemfile gem method to add requirements to concrete dependencies.
 Bundler::Dsl.prepend(Bundler::Resolutions::GemDeclarationWrapper)
