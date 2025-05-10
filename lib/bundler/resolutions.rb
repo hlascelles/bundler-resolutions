@@ -77,14 +77,14 @@ module Bundler
           Bundler::Resolutions.log("checking if #{name} is satisfied by the current lockfile version of #{lock_version}", name)
           resolutions.all? { |req| req.satisfied_by?(lock_version) }
         }.all?
+        require "pry-byebug"
+        debugger
 
         super || !@resolutions_satisfied
       end
     end
   end
 end
-
-require "pry-byebug" if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
 
 # This is needed so we can trigger a rebuild of the lock file if just the yaml has changed.
 Bundler::Definition.prepend(Bundler::Resolutions::Definition)

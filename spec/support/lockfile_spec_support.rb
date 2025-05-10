@@ -6,8 +6,10 @@ module Bundler
         Dir.chdir(dir) do
           FileUtils.rm_f("Gemfile.lock")
           if File.exist?("Gemfile.lock.original")
-            FileUtils.cp("Gemfile.lock.original",
-                         "Gemfile.lock")
+            original = File.read("Gemfile.lock.original")
+            File.write(
+              "Gemfile.lock", original.sub("$TEST_WITH_BUNDLER_VERSION", TEST_WITH_BUNDLER_VERSION)
+            )
           end
 
           lockfile = Bundler::Resolutions::Test.perform_test_install(dir)
@@ -30,7 +32,7 @@ module Bundler
 
       class << self
         def perform_test_install(dir)
-          puts `BUNDLE_GEMFILE=#{dir}/Gemfile bundle install`
+          puts `BUNDLE_GEMFILE=#{dir}/Gemfile bundle _#{TEST_WITH_BUNDLER_VERSION}_ install`
           raise "Bundle install failed" unless File.exist?("Gemfile.lock")
 
           Bundler::LockfileParser.new(File.read("Gemfile.lock"))

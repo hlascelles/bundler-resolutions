@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-context "when bundle install on an existing lockfile but the yaml has changed" do
+context "with bundler #{TEST_WITH_BUNDLER_VERSION} when bundle install on an existing lockfile but the yaml has changed" do
   # This tackles the scenario when the lockfile is self-consistent, but the yaml has changed.
   let(:expected_gem_specs_versions) {
     {

@@ -2,6 +2,8 @@
 
 ENV["BUNDLER_RESOLUTIONS_DEBUG"] ||= "true"
 ENV["BUNDLER_RESOLUTIONS_SPECS_RUNNING"] ||= "true"
+# Force the tester to choose a specific version of Bundler, since this matters a lot.
+TEST_WITH_BUNDLER_VERSION = ENV.fetch("TEST_WITH_BUNDLER_VERSION").freeze
 
 require "bundler"
 Bundler.setup

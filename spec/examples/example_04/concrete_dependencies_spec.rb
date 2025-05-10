@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-context "when handling concrete dependencies" do
+context "with bundler #{TEST_WITH_BUNDLER_VERSION} when handling concrete dependencies" do
   # Expect the right thor version, even though a higher one is available and otherwise valid
   let(:expected_gem_specs_versions) {
     {

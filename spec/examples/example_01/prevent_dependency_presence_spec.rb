@@ -2,7 +2,7 @@
 
 require "spec_helper"
 
-context "when preventing DEPENDENCY presence" do
+context "with bundler #{TEST_WITH_BUNDLER_VERSION} when preventing DEPENDENCY presence" do
   # Expect the right thor version, even though a higher one is available and otherwise valid
   let(:expected_gem_specs_versions) {
     {

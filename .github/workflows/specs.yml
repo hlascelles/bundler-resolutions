@@ -22,4 +22,4 @@ jobs:
         bundle check || bundle install
         # We need more than one version of figjam installed for the tests
         gem install figjam -v 1.6.1
-        bundle exec rspec
+        ./specs.sh
