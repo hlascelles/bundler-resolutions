@@ -32,10 +32,20 @@ module Bundler
 
       class << self
         def perform_test_install(dir)
-          puts `BUNDLE_GEMFILE=#{dir}/Gemfile bundle _#{TEST_WITH_BUNDLER_VERSION}_ install`
+          cmd = "BUNDLE_GEMFILE=#{dir}/Gemfile bundle install"
+          puts "Running: #{cmd}"
+          puts `#{cmd}`
           raise "Bundle install failed" unless File.exist?("Gemfile.lock")
 
-          Bundler::LockfileParser.new(File.read("Gemfile.lock"))
+          Bundler::LockfileParser.new(File.read("Gemfile.lock")).tap do |lockfile|
+            unless lockfile.bundler_version.to_s == TEST_WITH_BUNDLER_VERSION
+              puts "ENV:"
+              puts ENV.sort.map { |k, v| "#{k}=#{v}" }.join("\n")
+              raise <<~ERR
+                Wrong bundler version in produced lockfile. Expected #{TEST_WITH_BUNDLER_VERSION}, got #{lockfile.bundler_version}
+              ERR
+            end
+          end
         end
       end
     end

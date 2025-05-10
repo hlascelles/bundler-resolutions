@@ -77,8 +77,6 @@ module Bundler
           Bundler::Resolutions.log("checking if #{name} is satisfied by the current lockfile version of #{lock_version}", name)
           resolutions.all? { |req| req.satisfied_by?(lock_version) }
         }.all?
-        require "pry-byebug"
-        debugger
 
         super || !@resolutions_satisfied
       end
