@@ -70,7 +70,7 @@ module Bundler
     module Definition
       # This checks if the bundler-resolutions yaml file now no longer is satisfied by the
       # current Gemfile.lock. This may be because the yaml file was changed.
-      def something_changed?
+      def nothing_changed?
         @resolutions_satisfied ||= @locked_specs.to_a.map { |lazy_specification|
           name = lazy_specification.name
           lock_version = lazy_specification.version
@@ -82,7 +82,7 @@ module Bundler
         # require "pry-byebug"
         # debugger
 
-        super || !@resolutions_satisfied
+        super || @resolutions_satisfied
       end
     end
   end
