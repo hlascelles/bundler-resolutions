@@ -2,6 +2,7 @@
 
 require "yaml"
 require_relative "resolutions/config"
+require_relative "resolutions/version"
 
 module Bundler
   class Resolutions
@@ -77,12 +78,31 @@ module Bundler
           Bundler::Resolutions.log("checking if #{name} is satisfied by the current lockfile version of #{lock_version}", name)
           resolutions.all? { |req| req.satisfied_by?(lock_version) }
         }.all?
+        # puts ENV.sort.map { |k, v| "#{k}=#{v}" }.join("\n")
+        # require "pry-byebug"
+        # debugger
 
         super || !@resolutions_satisfied
       end
     end
   end
 end
+
+# Check if the methods exists before we prepend them, to avoid issues with Bundler versions
+# that do not have this method.
+{
+  Bundler::Resolver => :filtered_versions_for,
+  Bundler::Definition => :something_changed,
+  Bundler::Dsl => :gem,
+}.each do |klass, method|
+  raise <<~ERR unless klass.instance_methods.include?(method)
+    Bundler version #{Bundler::VERSION} is not compatible with bundler-resolutions #{Bundler::Resolutions::VERSION}
+    The method '#{method}' is not defined in '#{klass}'. This is likely due to a refactoring of a new
+    Bundler version. Please check the bundler-resolutions changelog and the Bundler changelog
+    to see if this is a known issue, or submit a bug report to bundler-resolutions.
+  ERR
+end
+
 
 # This is needed so we can trigger a rebuild of the lock file if just the yaml has changed.
 Bundler::Definition.prepend(Bundler::Resolutions::Definition)
