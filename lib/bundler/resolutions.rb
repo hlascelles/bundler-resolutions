@@ -103,7 +103,6 @@ end
   ERR
 end
 
-
 # This is needed so we can trigger a rebuild of the lock file if just the yaml has changed.
 Bundler::Definition.prepend(Bundler::Resolutions::Definition)
 # This removes the transitive dependency versions that do not satisfy the yaml config.
