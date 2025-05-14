@@ -92,10 +92,10 @@ end
 # that do not have this method.
 {
   Bundler::Resolver => :filtered_versions_for,
-  Bundler::Definition => :something_changed,
+  Bundler::Definition => :nothing_changed?,
   Bundler::Dsl => :gem,
 }.each do |klass, method|
-  raise <<~ERR unless klass.instance_methods.include?(method)
+  raise <<~ERR unless klass.instance_methods.include?(method) || klass.private_instance_methods.include?(method)
     Bundler version #{Bundler::VERSION} is not compatible with bundler-resolutions #{Bundler::Resolutions::VERSION}
     The method '#{method}' is not defined in '#{klass}'. This is likely due to a refactoring of a new
     Bundler version. Please check the bundler-resolutions changelog and the Bundler changelog
