@@ -9,3 +9,4 @@ source "https://rubygems.org"
 plugin "bundler-resolutions", path: "../../../"
 gem "dememoize", "0.1.0"
 gem "figjam", "1.6.2" # Gem that depends on thor
+gem "pry-byebug"
