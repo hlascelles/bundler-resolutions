@@ -9,6 +9,7 @@ context "with bundler #{TEST_WITH_BUNDLER_VERSION} when bundle install on an exi
       "dememoize" => "0.1.0",
       "figjam" => "1.6.2",
       "thor" => "1.3.0", # Should be lowered from 1.3.1 to 1.3.0
+      "bundler-resolutions" => Bundler::Resolutions::VERSION,
     }
   }
   # No thor, as it is only mentioned in resolutions

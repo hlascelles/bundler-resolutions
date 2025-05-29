@@ -34,7 +34,9 @@ module Bundler
         def perform_test_install(dir)
           cmd = "BUNDLE_GEMFILE=#{dir}/Gemfile BUNDLER_RESOLUTIONS_CONFIG=#{dir}/.bundler-resolutions.yml bundle install"
           puts "Running: #{cmd}"
-          puts `#{cmd}`
+          Bundler.with_original_env do
+            puts `#{cmd}`
+          end
           raise "Bundle install failed" unless File.exist?("Gemfile.lock")
 
           Bundler::LockfileParser.new(File.read("Gemfile.lock")).tap do |lockfile|

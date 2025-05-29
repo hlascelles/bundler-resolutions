@@ -10,6 +10,7 @@ context "with bundler #{TEST_WITH_BUNDLER_VERSION} when handling concrete depend
       "dememoize" => "0.1.0",
       "figjam" => "1.6.1",
       "thor" => "1.3.1", # Brought in by figjam, but pinned by bundler-resolutions
+      "bundler-resolutions" => Bundler::Resolutions::VERSION,
     }
   }
   # No thor, as it is only mentioned in resolutions

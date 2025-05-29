@@ -7,6 +7,7 @@ context "with bundler #{TEST_WITH_BUNDLER_VERSION} when bundle install on an oth
   let(:expected_gem_specs_versions) {
     {
       "dememoize" => "0.1.0",
+      "bundler-resolutions" => Bundler::Resolutions::VERSION,
     }
   }
   # No thor, as it is only mentioned in resolutions
