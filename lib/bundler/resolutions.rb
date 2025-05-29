@@ -22,8 +22,8 @@ module Bundler
       # You can debug with BUNDLER_RESOLUTIONS_DEBUG=gem_name or BUNDLER_RESOLUTIONS_DEBUG=true
       # to see all messages.
       def log(message, gem = nil)
-        return unless ENV["BUNDLER_RESOLUTIONS_DEBUG"]
-        return if gem && ENV["BUNDLER_RESOLUTIONS_DEBUG"] != "true" && !ENV["BUNDLER_RESOLUTIONS_DEBUG"].split(",").include?(gem)
+        return if ENV["BUNDLER_RESOLUTIONS_DEBUG"].nil?
+        return unless ENV["BUNDLER_RESOLUTIONS_DEBUG"] == "true" || ENV["BUNDLER_RESOLUTIONS_DEBUG"].split(",").include?(gem)
 
         puts "bundler-resolutions: #{message}"
       end
@@ -39,6 +39,7 @@ module Bundler
     end
 
     def constrain_versions_for(results, package)
+      log("Constraining versions for #{package} with results: #{results.map(&:to_s)}")
       results.select do |pkg|
         reqs = resolutions_for(package.name)
         if reqs.nil?
@@ -71,18 +72,40 @@ module Bundler
       # This checks if the bundler-resolutions yaml file now no longer is satisfied by the
       # current Gemfile.lock. This may be because the yaml file was changed.
       def nothing_changed?
+        locked_specs_names = @locked_specs.to_a.map(&:name)
         @resolutions_satisfied ||= @locked_specs.to_a.map { |lazy_specification|
           name = lazy_specification.name
+          # require "pry-byebug"
+          # debugger if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
           lock_version = lazy_specification.version
           resolutions = Bundler::Resolutions.instance.resolutions_for(name) || []
-          Bundler::Resolutions.log("checking if #{name} is satisfied by the current lockfile version of #{lock_version}", name)
-          resolutions.all? { |req| req.satisfied_by?(lock_version) }
+          resolutions.all? { |req| req.satisfied_by?(lock_version) }.tap do |satisfied|
+            Bundler::Resolutions.log("checking if #{name} is satisfied by the current lockfile version of #{lock_version}. Result: #{satisfied}.", name)
+          end
         }.all?
-        # puts ENV.sort.map { |k, v| "#{k}=#{v}" }.join("\n")
+        puts "bundler-resolutions: nothing changed? #{@resolutions_satisfied}.#{locked_specs_names}"
+        # puts locked_specs_names if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
         # require "pry-byebug"
-        # debugger
+        # debugger if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
 
-        super || @resolutions_satisfied
+        !@resolutions_satisfied && super
+      end
+
+      def check_lockfile
+        super
+        invalids =@locked_specs.to_a.select { |lazy_specification|
+          reqs = Bundler::Resolutions.instance.resolutions_for(lazy_specification.name)
+          next if reqs.nil?
+
+          if reqs.all? { |req| req.satisfied_by?(lazy_specification.version) }
+            puts "bundler-resolutions: #{lazy_specification.name} (#{lazy_specification.version}) is satisfied by the current lockfile version."
+            nil
+          else
+            puts "bundler-resolutions: #{lazy_specification.name} (#{lazy_specification.version}) is NOT satisfied by the current lockfile version."
+            lazy_specification
+          end
+        }
+        puts @locked_specs.delete(invalids)
       end
     end
   end
@@ -109,3 +132,5 @@ Bundler::Definition.prepend(Bundler::Resolutions::Definition)
 Bundler::Resolver.prepend(Bundler::Resolutions::Resolver)
 # This wraps the main Gemfile gem method to add requirements to concrete dependencies.
 Bundler::Dsl.prepend(Bundler::Resolutions::GemDeclarationWrapper)
+
+Bundler::Resolutions.log("bundler-resolutions #{Bundler::Resolutions::VERSION} loaded")

@@ -1,8 +1,3 @@
-PATH
-  remote: .
-  specs:
-    bundler-resolutions (0.4.0)
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -118,7 +113,6 @@ PLATFORMS
   x86_64-linux
 
 DEPENDENCIES
-  bundler-resolutions!
   climate_control
   colorize (= 1.1.0)
   dememoize (= 0.1.0)

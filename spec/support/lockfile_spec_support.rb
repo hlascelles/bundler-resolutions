@@ -32,7 +32,7 @@ module Bundler
 
       class << self
         def perform_test_install(dir)
-          cmd = "BUNDLE_GEMFILE=#{dir}/Gemfile bundle install"
+          cmd = "BUNDLE_GEMFILE=#{dir}/Gemfile BUNDLER_RESOLUTIONS_CONFIG=#{dir}/.bundler-resolutions.yml bundle install"
           puts "Running: #{cmd}"
           puts `#{cmd}`
           raise "Bundle install failed" unless File.exist?("Gemfile.lock")

@@ -21,7 +21,15 @@ Replace `bin/bundle` by running `bundle binstubs bundler --force`, then run this
   end
 end
 
+debug_on = ENV["BUNDLER_RESOLUTIONS_DEBUG"]
+specs_running = ENV["BUNDLER_RESOLUTIONS_SPECS_RUNNING"]
+ENV["BUNDLER_RESOLUTIONS_DEBUG"] = nil
+ENV["BUNDLER_RESOLUTIONS_SPECS_RUNNING"] = nil
+
 require "rubygems"
 require "bundler/setup"
+
+ENV["BUNDLER_RESOLUTIONS_DEBUG"] = debug_on
+ENV["BUNDLER_RESOLUTIONS_SPECS_RUNNING"] = specs_running
 
 load Gem.bin_path("rspec-core", "rspec")
