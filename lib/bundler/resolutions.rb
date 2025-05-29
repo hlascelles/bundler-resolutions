@@ -69,27 +69,27 @@ module Bundler
     end
 
     module Definition
-      # This checks if the bundler-resolutions yaml file now no longer is satisfied by the
-      # current Gemfile.lock. This may be because the yaml file was changed.
-      def nothing_changed?
-        locked_specs_names = @locked_specs.to_a.map(&:name)
-        @resolutions_satisfied ||= @locked_specs.to_a.map { |lazy_specification|
-          name = lazy_specification.name
-          # require "pry-byebug"
-          # debugger if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
-          lock_version = lazy_specification.version
-          resolutions = Bundler::Resolutions.instance.resolutions_for(name) || []
-          resolutions.all? { |req| req.satisfied_by?(lock_version) }.tap do |satisfied|
-            Bundler::Resolutions.log("checking if #{name} is satisfied by the current lockfile version of #{lock_version}. Result: #{satisfied}.", name)
-          end
-        }.all?
-        puts "bundler-resolutions: nothing changed? #{@resolutions_satisfied}.#{locked_specs_names}"
-        # puts locked_specs_names if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
-        # require "pry-byebug"
-        # debugger if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
-
-        !@resolutions_satisfied && super
-      end
+      # # This checks if the bundler-resolutions yaml file now no longer is satisfied by the
+      # # current Gemfile.lock. This may be because the yaml file was changed.
+      # def nothing_changed?
+      #   locked_specs_names = @locked_specs.to_a.map(&:name)
+      #   @resolutions_satisfied ||= @locked_specs.to_a.map { |lazy_specification|
+      #     name = lazy_specification.name
+      #     # require "pry-byebug"
+      #     # debugger if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
+      #     lock_version = lazy_specification.version
+      #     resolutions = Bundler::Resolutions.instance.resolutions_for(name) || []
+      #     resolutions.all? { |req| req.satisfied_by?(lock_version) }.tap do |satisfied|
+      #       Bundler::Resolutions.log("checking if #{name} is satisfied by the current lockfile version of #{lock_version}. Result: #{satisfied}.", name)
+      #     end
+      #   }.all?
+      #   puts "bundler-resolutions: nothing changed? #{@resolutions_satisfied}.#{locked_specs_names}"
+      #   # puts locked_specs_names if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
+      #   # require "pry-byebug"
+      #   # debugger if ENV["BUNDLER_RESOLUTIONS_DEBUG"]
+      #
+      #   !@resolutions_satisfied && super
+      # end
 
       def check_lockfile
         super

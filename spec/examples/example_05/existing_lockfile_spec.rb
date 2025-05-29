@@ -13,7 +13,7 @@ context "with bundler #{TEST_WITH_BUNDLER_VERSION} when bundle install on an exi
     }
   }
   # No thor, as it is only mentioned in resolutions
-  let(:expected_dependencies) { %w[bundler-resolutions dememoize] }
+  let(:expected_dependencies) { %w[bundler-resolutions figjam dememoize] }
 
   it "runs the lockfile test" do
     expect(run_lockfile_test(__dir__)).to be true
