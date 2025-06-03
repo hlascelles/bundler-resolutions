@@ -17,7 +17,7 @@ context "with bundler #{TEST_WITH_BUNDLER_VERSION} when handling concrete depend
   let(:expected_dependencies) { %w[bundler-resolutions colorize dememoize figjam] }
   let(:expected_dependency_versions) {
     {
-      "colorize" => ">=0", # Does not affect concrete dependencies
+      "colorize" => ">= 0", # Does not affect concrete dependencies
       "figjam" => "> 1.5.0, < 1.6.2", # One from the Gemfile, one from the resolutions file
     }
   }
