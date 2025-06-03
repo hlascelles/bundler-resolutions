@@ -60,7 +60,7 @@ module Bundler
     module Definition
       def check_lockfile
         super
-        invalids =@locked_specs.to_a.select { |lazy_specification|
+        invalids = @locked_specs.to_a.select { |lazy_specification|
           reqs = Bundler::Resolutions.instance.resolutions_for(lazy_specification.name)
           next if reqs.nil?
 
