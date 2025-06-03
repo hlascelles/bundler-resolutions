@@ -6,8 +6,10 @@ module Bundler
         Dir.chdir(dir) do
           FileUtils.rm_f("Gemfile.lock")
           if File.exist?("Gemfile.lock.original")
-            FileUtils.cp("Gemfile.lock.original",
-                         "Gemfile.lock")
+            original = File.read("Gemfile.lock.original")
+            File.write(
+              "Gemfile.lock", original.sub("$TEST_WITH_BUNDLER_VERSION", TEST_WITH_BUNDLER_VERSION)
+            )
           end
 
           lockfile = Bundler::Resolutions::Test.perform_test_install(dir)
@@ -30,10 +32,24 @@ module Bundler
 
       class << self
         def perform_test_install(dir)
-          puts `BUNDLE_GEMFILE=#{dir}/Gemfile bundle install`
+          cmd = <<~CMD
+            BUNDLE_GEMFILE=#{dir}/Gemfile BUNDLER_RESOLUTIONS_CONFIG=#{dir}/.bundler-resolutions.yml bundle install
+          CMD
+          puts "Running: #{cmd}"
+          Bundler.with_original_env do
+            puts `#{cmd}`
+          end
           raise "Bundle install failed" unless File.exist?("Gemfile.lock")
 
-          Bundler::LockfileParser.new(File.read("Gemfile.lock"))
+          Bundler::LockfileParser.new(File.read("Gemfile.lock")).tap do |lockfile|
+            unless lockfile.bundler_version.to_s == TEST_WITH_BUNDLER_VERSION
+              puts "ENV:"
+              puts ENV.sort.map { |k, v| "#{k}=#{v}" }.join("\n")
+              raise <<~ERR
+                Wrong bundler version in produced lockfile. Expected #{TEST_WITH_BUNDLER_VERSION}, got #{lockfile.bundler_version}
+              ERR
+            end
+          end
         end
       end
     end

@@ -1,0 +1,11 @@
+ThreadSafety/DirChdir:
+  Exclude:
+  - 'spec/**/*'
+RSpec/IndexedLet:
+  Exclude:
+  - 'spec/**/*'
+Naming/VariableNumber:
+  Exclude:
+  - 'spec/**/*'
+Style/FetchEnvVar:
+  Enabled: false
