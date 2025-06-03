@@ -15,7 +15,7 @@ module Bundler
                        YAML.safe_load_file(find_config(config))
                      end
           gems = raw_hash.fetch("gems")
-          gems.transform_values { |version| Gem::Requirement.new(version.split(",")) }
+          gems.transform_values { |reqs| Array(reqs).map { |req| Gem::Requirement.new(req) } }
         end
 
         private def find_config(config = nil)
@@ -25,8 +25,8 @@ module Bundler
           env_file = ENV["BUNDLER_RESOLUTIONS_CONFIG"]
           return env_file if env_file
 
-          # Otherwise find it in the file tree
-          dir = Dir.pwd
+          # Otherwise find it above where `BUNDLE_GEMFILE` is located, or pwd if not set
+          dir = ENV["BUNDLE_GEMFILE"] ? File.dirname(ENV["BUNDLE_GEMFILE"]) : Dir.pwd
           until File.exist?(File.join(dir, CONFIG_FILE_NAME))
             dir = File.dirname(dir)
             raise "Could not find #{CONFIG_FILE_NAME}" if dir == "/"

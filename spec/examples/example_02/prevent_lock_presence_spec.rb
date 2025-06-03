@@ -2,18 +2,18 @@
 
 require "spec_helper"
 
-context "prevents Gemfile.lock presence" do
+context "with bundler #{TEST_WITH_BUNDLER_VERSION} when the yaml gems are not needed" do
   # No thor, as it is only mentioned in resolutions
   let(:expected_gem_specs_versions) {
     {
-      "bundler-resolutions" => Bundler::Resolutions::VERSION,
       "dememoize" => "0.1.0",
+      "bundler-resolutions" => Bundler::Resolutions::VERSION,
     }
   }
   # No thor, as it is only mentioned in resolutions
   let(:expected_dependencies) { %w[bundler-resolutions dememoize] }
 
-  it "runs the lockfile test" do
+  it "prevents Gemfile.lock presence" do
     expect(run_lockfile_test(__dir__)).to be true
   end
 end
