@@ -11,12 +11,12 @@ permissions:
 
 jobs:
   push:
-    if: github.repository == 'hlascelles/dememoize'
+    if: github.repository == 'hlascelles/bundler-resolutions'
     runs-on: ubuntu-latest
 
     environment:
       name: rubygems.org
-      url: https://rubygems.org/gems/dememoize
+      url: https://rubygems.org/gems/bundler-resolutions
 
     permissions:
       contents: write
