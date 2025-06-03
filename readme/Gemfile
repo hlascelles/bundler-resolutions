@@ -1,4 +1,0 @@
-source "https://rubygems.org"
-
-plugin "bundler-resolutions", path: "../"
-gem "rspec-core", "< 3.13.2"

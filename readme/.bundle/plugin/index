@@ -1,9 +1,0 @@
----
-commands:
-hooks:
-load_paths:
-  bundler-resolutions:
-  - "/home/harry/git/hlascelles/bundler-resolutions/lib"
-plugin_paths:
-  bundler-resolutions: "/home/harry/git/hlascelles/bundler-resolutions"
-sources:
