@@ -83,7 +83,6 @@ end
 {
   Bundler::Resolver => :filtered_versions_for,
   Bundler::Definition => :nothing_changed?,
-  Bundler::Dsl => :gem,
 }.each do |klass, method|
   raise <<~ERR unless klass.instance_methods.include?(method) || klass.private_instance_methods.include?(method)
     Bundler version #{Bundler::VERSION} is not compatible with bundler-resolutions #{Bundler::Resolutions::VERSION}
