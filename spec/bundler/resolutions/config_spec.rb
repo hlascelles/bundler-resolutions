@@ -61,11 +61,13 @@ describe Bundler::Resolutions::Config do
         File.write(config_path, valid_yaml)
 
         # Change to the nested directory and initialize without config
-        Dir.chdir(nested_dir) do
-          resolutions = described_class.load_config
-          expect(resolutions["thor"]).to be_a(Array)
-          expect(resolutions["thor"].first).to be_a(Gem::Requirement)
-          expect(resolutions["thor"].first.to_s).to eq("= 1.3.1")
+        ClimateControl.modify BUNDLE_GEMFILE: File.join(nested_dir, "Gemfile") do
+          Dir.chdir(nested_dir) do
+            resolutions = described_class.load_config
+            expect(resolutions["thor"]).to be_a(Array)
+            expect(resolutions["thor"].first).to be_a(Gem::Requirement)
+            expect(resolutions["thor"].first.to_s).to eq("= 1.3.1")
+          end
         end
       end
     end
