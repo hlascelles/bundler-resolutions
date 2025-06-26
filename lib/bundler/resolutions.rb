@@ -19,37 +19,34 @@ module Bundler
         @instance ||= new # rubocop:disable ThreadSafety/ClassInstanceVariable
       end
 
-      # You can debug with BUNDLER_RESOLUTIONS_DEBUG=gem_name or BUNDLER_RESOLUTIONS_DEBUG=true
-      # to see all messages.
-      def log(message, gem = nil)
+      def log(message, gem_name_obj = nil)
+        gem_name_str = gem_name_obj.to_s
         return if ENV["BUNDLER_RESOLUTIONS_DEBUG"].nil?
         unless ENV["BUNDLER_RESOLUTIONS_DEBUG"] == "true" ||
-               ENV["BUNDLER_RESOLUTIONS_DEBUG"].split(",").include?(gem)
+               ENV["BUNDLER_RESOLUTIONS_DEBUG"].split(",").include?(gem_name_str)
           return
         end
-
         puts "bundler-resolutions: #{message}"
       end
     end
 
-    # A module we prepend to Bundler::Resolutions::Resolver
-    module Resolver
-      # This overrides the default behaviour of the resolver to filter out versions that don't
-      # satisfy the requirements specified in .bundler-resolutions.yml.
+    module ResolverExtension
       def filtered_versions_for(package)
-        Bundler::Resolutions.instance.constrain_versions_for(super, package)
+        versions = super(package)
+        Bundler::Resolutions.instance.constrain_versions_for(versions, package)
       end
     end
 
     def constrain_versions_for(results, package)
-      log("Constraining versions for #{package} with results: #{results.map(&:to_s)}")
+      self.class.log("Constraining versions for #{package} with results: #{results.map(&:to_s)}", package.name)
       results.select do |pkg|
+        version_to_check = pkg.is_a?(String) ? Gem::Version.new(pkg) : pkg.version
         reqs = resolutions_for(package.name)
         if reqs.nil?
           true
         else
-          log("making sure #{package} / #{pkg} is satisfied by #{reqs.map(&:to_s)}")
-          reqs.all? { |req| req.satisfied_by?(pkg.version) }
+          self.class.log("making sure #{package} / #{version_to_check} is satisfied by #{reqs.map(&:to_s)}", package.name)
+          reqs.all? { |req| req.satisfied_by?(version_to_check) }
         end
       end
     end
@@ -58,50 +55,89 @@ module Bundler
       config[package_name]
     end
 
-    def log(message, gem = nil) = self.class.log(message, gem)
-
-    module Definition
+    module DefinitionExtension
       def check_lockfile
         super
-        invalids = @locked_specs.to_a.select { |lazy_specification|
-          reqs = Bundler::Resolutions.instance.resolutions_for(lazy_specification.name)
-          next if reqs.nil?
-
-          # rubocop:disable Layout/LineLength
+        resolutions_instance = Bundler::Resolutions.instance
+        return unless resolutions_instance&.config&.any? && @locked_specs
+        invalids = @locked_specs.to_a.select do |lazy_specification|
+          reqs = resolutions_instance.resolutions_for(lazy_specification.name)
+          next false if reqs.nil?
           if reqs.all? { |req| req.satisfied_by?(lazy_specification.version) }
-            Bundler::Resolutions.log "#{lazy_specification.name} (#{lazy_specification.version}) is satisfied by the current lockfile version."
-            nil
+            Bundler::Resolutions.log "#{lazy_specification.name} (#{lazy_specification.version}) is satisfied (resolutions).", lazy_specification.name
+            false
           else
-            Bundler::Resolutions.log "#{lazy_specification.name} (#{lazy_specification.version}) is NOT satisfied by the current lockfile version."
-            lazy_specification
+            Bundler::Resolutions.log "#{lazy_specification.name} (#{lazy_specification.version}) is NOT satisfied by resolutions.", lazy_specification.name
+            true
           end
-          # rubocop:enable Layout/LineLength
-        }
-        @locked_specs.delete(invalids)
+        end
+        invalids.each { |invalid_spec| @locked_specs.delete(invalid_spec) }
+      end
+    end
+
+    module DependencyExtension
+      def to_lock
+        original_gemfile_requirement = self.requirement
+        final_requirement_to_use = original_gemfile_requirement
+        modified = false
+
+        resolutions_instance = Bundler::Resolutions.instance
+        if resolutions_instance&.config&.any?
+          resolution_gem_requirements = resolutions_instance.resolutions_for(self.name) # Array of Gem::Requirement
+
+          if resolution_gem_requirements && !resolution_gem_requirements.empty?
+            exact_resolution = resolution_gem_requirements.find do |r|
+              r.requirements.length == 1 && r.requirements.first&.first == '='
+            end
+
+            if exact_resolution
+              Bundler::Resolutions.log("Found exact resolution '#{exact_resolution}' for '#{self.name}'. This will replace Gemfile requirement '#{original_gemfile_requirement}'.", self.name)
+              final_requirement_to_use = exact_resolution
+            else
+              # No exact resolution, combine Gemfile req with all (ranged) resolution reqs
+              all_req_pairs = original_gemfile_requirement.requirements +
+                              resolution_gem_requirements.flat_map(&:requirements)
+              unique_req_strings = all_req_pairs.map { |op, ver| "#{op} #{ver.to_s}" }.uniq
+              combined_req = Gem::Requirement.new(unique_req_strings)
+
+              Bundler::Resolutions.log("No exact resolution for '#{self.name}'. Combined Gemfile req '#{original_gemfile_requirement}' with resolutions '#{resolution_gem_requirements.map(&:to_s).join(", ")}' into '#{combined_req}'.", self.name)
+              final_requirement_to_use = combined_req
+            end
+
+            if original_gemfile_requirement != final_requirement_to_use
+              modified = true
+            end
+          end
+        end
+
+        if modified
+          Bundler::Resolutions.log("Overriding requirement for '#{self.name}' from '#{original_gemfile_requirement}' to '#{final_requirement_to_use}' for to_lock.", self.name)
+          begin
+            self.instance_variable_set(:@requirement, final_requirement_to_use)
+            return super()
+          ensure
+            self.instance_variable_set(:@requirement, original_gemfile_requirement)
+          end
+        else
+          super()
+        end
       end
     end
   end
 end
 
-# Check if the methods exists before we prepend them, to avoid issues with Bundler versions
-# that do not have this method.
 {
   Bundler::Resolver => :filtered_versions_for,
-  Bundler::Definition => :nothing_changed?,
+  Bundler::Definition => :check_lockfile,
+  Bundler::Dependency => :to_lock
 }.each do |klass, method|
-  next if klass.instance_methods.include?(method) || klass.private_instance_methods.include?(method)
-
-  raise <<~ERR
-        Bundler version #{Bundler::VERSION} is not compatible with bundler-resolutions #{Bundler::Resolutions::VERSION}
-    The method '#{method}' is not defined in '#{klass}'. This is likely due to a refactoring of a new
-    Bundler version. Please check the bundler-resolutions changelog and the Bundler changelog
-    to see if this is a known issue, or submit a bug report to bundler-resolutions.
-  ERR
+  unless klass.instance_methods.include?(method) || klass.private_instance_methods.include?(method)
+    raise "Compatibility error: #{klass}##{method} not found for Bundler::Resolutions."
+  end
 end
 
-# This is needed so we can trigger a rebuild of the lock file if just the yaml has changed.
-Bundler::Definition.prepend(Bundler::Resolutions::Definition)
-# This removes the transitive dependency versions that do not satisfy the yaml config.
-Bundler::Resolver.prepend(Bundler::Resolutions::Resolver)
+Bundler::Definition.prepend(Bundler::Resolutions::DefinitionExtension)
+Bundler::Resolver.prepend(Bundler::Resolutions::ResolverExtension)
+Bundler::Dependency.prepend(Bundler::Resolutions::DependencyExtension)
 
-Bundler::Resolutions.log("bundler-resolutions #{Bundler::Resolutions::VERSION} loaded")
+Bundler::Resolutions.log("bundler-resolutions #{Bundler::Resolutions::VERSION} loaded with all patches for concrete dependency requirement overrides.")

@@ -75,3 +75,6 @@ _site
 **/.byebug_history
 .bundle
 **/.bundle
+
+# Ignore gems vendored within spec examples
+spec/examples/**/.gems/
