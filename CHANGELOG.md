@@ -1,3 +1,11 @@
+## 0.5.0 (2025-05-03)
+
+- Allow YAML arrays and CSVs for versions [#41](https://github.com/hlascelles/bundler-resolutions/pull/41)
+
+## 0.4.0 (2025-05-03)
+
+- Allow existing lockfiles to be noticed [#37](https://github.com/hlascelles/bundler-resolutions/pull/37)
+
 ## 0.3.0 (2025-05-03)
 
 - BREAKING CHANGE: Add resolution versions to concrete dependencies [#27](https://github.com/hlascelles/bundler-resolutions/pull/27)

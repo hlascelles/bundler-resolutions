@@ -10,25 +10,60 @@ describe Bundler::Resolutions::Config do
   let(:valid_config_hash) { { "gems" => { "thor" => "1.3.1" } } }
   let(:valid_yaml) { "gems:\n  thor: \"1.3.1\"\n" }
 
+  def expect_correct_requirement(resolutions, *reqs)
+    thor_resolutions = resolutions["thor"]
+    expect(thor_resolutions.count).to eq(reqs.count)
+    reqs.each_with_index do |req, index|
+      thor_requirement = thor_resolutions[index]
+      expect(thor_requirement).to be_a(Gem::Requirement)
+      expect(thor_requirement.to_s).to eq(req)
+    end
+  end
+
   context "with a hash config" do
     it "loads configuration from a hash" do
       resolutions = described_class.load_config(valid_config_hash)
-      thor_requirement = resolutions["thor"].first
-      expect(thor_requirement).to be_a(Gem::Requirement)
-      expect(thor_requirement.to_s).to eq("= 1.3.1")
+      expect_correct_requirement(resolutions, "= 1.3.1")
     end
   end
 
   context "with a file path" do
     it "loads configuration from a file path" do
-      Tempfile.create(["resolutions", ".yml"]) do |file|
-        file.write(valid_yaml)
-        file.flush
+      Tempfile.create("resolutions") do |file|
+        File.write(file, valid_yaml)
 
         resolutions = described_class.load_config(file.path)
-        thor_requirement = resolutions["thor"].first
-        expect(thor_requirement).to be_a(Gem::Requirement)
-        expect(thor_requirement.to_s).to eq("= 1.3.1")
+        expect_correct_requirement(resolutions, "= 1.3.1")
+      end
+    end
+
+    context "with a hash config with comma separated" do
+      it "loads configuration" do
+        Tempfile.create("resolutions") do |file|
+          File.write(file, <<~YAML)
+            gems:
+              thor: "1.3.1, 1.2.0"
+          YAML
+
+          resolutions = described_class.load_config(file.path)
+          expect_correct_requirement(resolutions, "= 1.3.1", "= 1.2.0")
+        end
+      end
+    end
+
+    context "with a hash config with array" do
+      it "loads configuration" do
+        Tempfile.create("resolutions") do |file|
+          File.write(file, <<~YAML)
+            gems:
+              thor:
+              - "1.3.1"
+              - "1.2.0"
+          YAML
+
+          resolutions = described_class.load_config(file.path)
+          expect_correct_requirement(resolutions, "= 1.3.1", "= 1.2.0")
+        end
       end
     end
   end
@@ -36,8 +71,7 @@ describe Bundler::Resolutions::Config do
   context "with ENV variable" do
     it "loads configuration from ENV path" do
       Tempfile.create(%w[resolutions .yml]) do |file|
-        file.write(valid_yaml)
-        file.flush
+        File.write(file, valid_yaml)
 
         ClimateControl.modify BUNDLER_RESOLUTIONS_CONFIG: file.path do
           resolutions = described_class.load_config

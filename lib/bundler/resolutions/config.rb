@@ -9,13 +9,24 @@ module Bundler
 
       class << self
         def load_config(config = nil)
+          location = "config hash"
           raw_hash = if config.is_a?(Hash)
                        config
                      else
-                       YAML.safe_load_file(find_config(config))
+                       location = find_config(config)
+                       YAML.safe_load_file(location)
                      end
-          gems = raw_hash.fetch("gems")
-          gems.transform_values { |reqs| Array(reqs).map { |req| Gem::Requirement.new(req) } }
+          gems = raw_hash.fetch("gems") {
+            raise <<~ERR
+              No 'gems' key found in #{location}. Please ensure the file is formatted correctly.
+
+              Data was:
+              #{raw_hash.inspect}
+            ERR
+          }
+          gems.transform_values { |reqs|
+            Array(reqs).flat_map { |v| v.split(",") }.map { |req| Gem::Requirement.new(req) }
+          }
         end
 
         private def find_config(config = nil)
