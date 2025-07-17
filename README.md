@@ -15,8 +15,23 @@ a concrete dependency on those gems. It acts much like the
 
 ## Usage
 
-Add `bundler-resolutions` to your Gemfile, and add a `.bundler-resolutions.yml` file to
-specify the gems you want to specify versions requirements for.
+Add `bundler-resolutions` to your Gemfile. Note, it must come before all other gems, and be followed
+by `require "bundler/resolutions"`. This is because it patches the `bundler` resolver. This means
+the first time you run `bundle install` it will not work, as the gem has not been installed yet.
+
+`Gemfile`:
+```ruby
+gem "bundler-resolutions"
+require "bundler/resolutions" if Gem::Specification.find_all_by_name('bundler-resolutions').any?
+```
+
+Then, and add a `.bundler-resolutions.yml` file to specify the gems you want to specify versions requirements for.
+
+`.bundler-resolutions.yml`:
+```yaml
+gems:
+  nokogiri: ">= 1.16.5" # CVE-2024-34459
+```
 
 ### Example 1
 
@@ -25,16 +40,17 @@ nokogiri will not be present in the `DEPENDENCIES` section of the lock file. Als
 to change to a version that did not depend on nokogiri, then the resolution would not be used or
 appear in the lock file at all.
 
+`Gemfile`:
+```ruby
+gem "bundler-resolutions"
+require "bundler/resolutions" if Gem::Specification.find_all_by_name('bundler-resolutions').any?
+gem "rails"
+```
+
 `.bundler-resolutions.yml`:
 ```yaml
 gems:
   nokogiri: ">= 1.16.5" # CVE-2024-34459
-```
-
-`Gemfile`:
-```ruby
-gem "bundler-resolutions", path: "../", install_if: -> { require Gem::Specification.find_by_name('bundler-resolutions').gem_dir + "/lib/bundler/resolutions"; true }
-gem "rails"
 ```
 
 ### Example 2
@@ -42,15 +58,16 @@ gem "rails"
 Here, the `Gemfile.lock` from this example will not have nokogiri at all, as it is neither
 explicitly declared in the Gemfile, nor brought in as a transitive dependency.
 
+```ruby
+gem 'bundler-resolutions'
+require "bundler/resolutions" if Gem::Specification.find_all_by_name('bundler-resolutions').any?
+gem "thor"
+```
+
 `.bundler-resolutions.yml`:
 ```yaml
 gems:
   nokogiri: ">= 1.16.5" # CVE-2024-34459
-```
-
-```ruby
-gem 'bundler-resolutions'
-gem "thor"
 ```
 
 ## Config file
@@ -84,6 +101,22 @@ bundler lock resolution.
 
 The other difference is that even if it does take part in the resolutions, it will not be
 present in the `DEPENDENCIES` section of the lock file, as it is not a direct dependency.
+
+## The Gemfile require
+
+You will see that the `Gemfile` requires `bundler/resolutions` to make it work fully. This is
+because it patches the `bundler` resolver to allow for the resolution restrictions. Unfortunately,
+if the `Gemfile.lock` file is already present, and all the gems are already resolved and installed then no
+patching will take place, and the bundler-resolutions code will never be run.
+
+The bundler-resolutions code will only run without the extra require if:
+
+1. The `Gemfile.lock` file is not present.
+2. Any of the locked gems are not installed.
+3. `bundle update` is run.
+
+The one scenario where the require line is needed is when `bundle install` is run with a valid,
+preinstalled `Gemfile.lock`.
 
 ## Use cases
 
