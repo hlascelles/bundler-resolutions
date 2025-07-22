@@ -16,6 +16,6 @@ context "with bundler #{TEST_WITH_BUNDLER_VERSION} when preventing DEPENDENCY pr
   let(:expected_dependencies) { %w[bundler-resolutions dememoize figjam] }
 
   it "runs the lockfile test" do
-    expect(run_lockfile_test(__dir__)).to be true
+    expect_no_lockfile_test_errors
   end
 end

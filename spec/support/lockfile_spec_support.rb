@@ -2,7 +2,7 @@ module Bundler
   class Resolutions
     module Test
       # :reek:ManualDispatch
-      def run_lockfile_test(dir)
+      def expect_no_lockfile_test_errors(dir)
         Dir.chdir(dir) do
           FileUtils.rm_f("Gemfile.lock")
           if File.exist?("Gemfile.lock.original")
@@ -27,7 +27,6 @@ module Bundler
             end
           end
         end
-        true
       end
 
       class << self

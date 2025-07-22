@@ -14,6 +14,6 @@ context "with bundler #{TEST_WITH_BUNDLER_VERSION} when bundle install on an val
   let(:expected_dependencies) { %w[bundler-resolutions dememoize] }
 
   it "runs the lockfile test" do
-    expect(run_lockfile_test(__dir__)).to be true
+    expect_no_lockfile_test_errors
   end
 end
