@@ -18,6 +18,6 @@ context ctx do
   let(:expected_dependencies) { %w[bundler-resolutions figjam dememoize] }
 
   it "runs the lockfile test" do
-    expect(run_lockfile_test(__dir__)).to be true
+    expect_lockfile_test_to_succeed(__dir__)
   end
 end
