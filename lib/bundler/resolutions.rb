@@ -63,21 +63,28 @@ module Bundler
     module Definition
       def check_lockfile
         super
-        invalids = @locked_specs.to_a.select { |lazy_specification|
-          reqs = Bundler::Resolutions.instance.resolutions_for(lazy_specification.name)
-          next if reqs.nil?
+        invalids = @locked_specs.to_a.select { |s| spec_invalid?(s) }
+        return if invalids.empty?
 
-          # rubocop:disable Layout/LineLength
-          if reqs.all? { |req| req.satisfied_by?(lazy_specification.version) }
-            Bundler::Resolutions.log "#{lazy_specification.name} (#{lazy_specification.version}) is satisfied by the current lockfile version."
-            nil
-          else
-            Bundler::Resolutions.log "#{lazy_specification.name} (#{lazy_specification.version}) is NOT satisfied by the current lockfile version."
-            lazy_specification
-          end
-          # rubocop:enable Layout/LineLength
-        }
         @locked_specs.delete(invalids)
+        # Signal to Bundler that re-resolution is needed due to invalid transitive dependencies.
+        # This prevents confusing "Could not find gems valid for all resolution platforms" errors.
+        @locked_spec_with_invalid_deps = invalids.first.name if @locked_spec_with_invalid_deps.nil?
+      end
+
+      private def spec_invalid?(lazy_specification)
+        reqs = Bundler::Resolutions.instance.resolutions_for(lazy_specification.name)
+        return false if reqs.nil?
+
+        # rubocop:disable Layout/LineLength
+        if reqs.all? { |req| req.satisfied_by?(lazy_specification.version) }
+          Bundler::Resolutions.log "#{lazy_specification.name} (#{lazy_specification.version}) is satisfied by the current lockfile version."
+          false
+        else
+          Bundler::Resolutions.log "#{lazy_specification.name} (#{lazy_specification.version}) is NOT satisfied by the current lockfile version."
+          true
+        end
+        # rubocop:enable Layout/LineLength
       end
     end
   end
