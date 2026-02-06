@@ -1,3 +1,7 @@
+## 0.6.0 (2026-02-06)
+
+- Signal bundler that locked specs have invalid dependencies [#61](https://github.com/hlascelles/bundler-resolutions/pull/61)
+
 ## 0.5.0 (2025-05-03)
 
 - Allow YAML arrays and CSVs for versions [#41](https://github.com/hlascelles/bundler-resolutions/pull/41)
