@@ -4,6 +4,9 @@ ThreadSafety/DirChdir:
 RSpec/IndexedLet:
   Exclude:
   - 'spec/**/*'
+RSpec/Output:
+  Exclude:
+  - 'spec/**/*'
 Naming/VariableNumber:
   Exclude:
   - 'spec/**/*'
