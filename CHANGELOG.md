@@ -1,3 +1,7 @@
+## 0.6.1 (2026-02-19)
+
+- Gem dependency updates and rubocop fixes
+
 ## 0.6.0 (2026-02-06)
 
 - Signal bundler that locked specs have invalid dependencies [#61](https://github.com/hlascelles/bundler-resolutions/pull/61)
