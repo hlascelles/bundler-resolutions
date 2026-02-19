@@ -18,6 +18,9 @@ context ctx do
   # No thor, as it is only mentioned in resolutions
   let(:expected_dependencies) { %w[bundler-resolutions figjam] }
 
+  # All three platforms from the original lockfile must be preserved.
+  let(:expected_platforms) { %w[arm64-darwin x86_64-darwin x86_64-linux] }
+
   it "runs the lockfile test" do
     expect_lockfile_test_to_succeed(__dir__)
   end

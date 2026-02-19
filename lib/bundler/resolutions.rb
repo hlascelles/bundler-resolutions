@@ -66,6 +66,15 @@ module Bundler
         invalids = @locked_specs.to_a.select { |s| spec_invalid?(s) }
         return if invalids.empty?
 
+        # Ensure @locked_specs is a separate object from @originally_locked_specs before mutating.
+        # Bundler initialises both to the same SpecSet object (definition.rb:
+        # `@locked_specs = @originally_locked_specs`). If we delete from the shared object,
+        # @originally_locked_specs loses the platform-specific entries too, causing
+        # remove_invalid_platforms! to incorrectly strip non-local platforms from @platforms,
+        # which in turn drops those platforms from the regenerated lockfile.
+        if @locked_specs.equal?(@originally_locked_specs)
+          @locked_specs = SpecSet.new(@originally_locked_specs.to_a)
+        end
         @locked_specs.delete(invalids)
         # Signal to Bundler that re-resolution is needed due to invalid transitive dependencies.
         # This prevents confusing "Could not find gems valid for all resolution platforms" errors.

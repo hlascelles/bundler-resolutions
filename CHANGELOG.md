@@ -1,3 +1,7 @@
+## 0.7.0 (2026-02-19)
+
+- Fix platform information loss [#67](https://github.com/hlascelles/bundler-resolutions/pull/67)
+
 ## 0.6.1 (2026-02-19)
 
 - Gem dependency updates and rubocop fixes
