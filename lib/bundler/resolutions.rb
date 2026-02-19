@@ -96,7 +96,7 @@ end
   Bundler::Resolver => :filtered_versions_for,
   Bundler::Definition => :nothing_changed?,
 }.each do |klass, method|
-  next if klass.instance_methods.include?(method) || klass.private_instance_methods.include?(method)
+  next if klass.method_defined?(method) || klass.private_method_defined?(method)
 
   raise <<~ERR
         Bundler version #{Bundler::VERSION} is not compatible with bundler-resolutions #{Bundler::Resolutions::VERSION}
