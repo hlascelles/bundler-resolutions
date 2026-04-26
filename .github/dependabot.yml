@@ -3,5 +3,9 @@ updates:
 - package-ecosystem: bundler
   directory: "/"
   schedule:
-    interval: semiannually
-  open-pull-requests-limit: 10
+    interval: "cron"
+    cron: "0 0 1 3,9 *"
+  groups:
+    everything:
+      patterns:
+      - "*" # Bundle update everything
