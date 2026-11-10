@@ -84,7 +84,7 @@ GEM
       byebug (~> 13.0)
       pry (>= 0.13, < 0.17)
     racc (1.8.1)
-    rack (3.2.6)
+    rack (3.2.8)
     rainbow (3.1.1)
     rake (13.4.2)
     reek (6.5.0)
